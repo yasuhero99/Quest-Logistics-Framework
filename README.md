@@ -59,7 +59,6 @@ The framework handles extraction, validation, tracking, and delivery.
 QLF 負責匯出、驗證、追蹤與回填。
 
 ---
----
 
 # Project Motivation / 開發動機
 

@@ -59,6 +59,91 @@ The framework handles extraction, validation, tracking, and delivery.
 QLF 負責匯出、驗證、追蹤與回填。
 
 ---
+---
+
+# Project Motivation / 開發動機
+
+QLF started from a simple frustration:
+
+Minecraft quest translation workflows often depend on launching the game, maintaining specific mod loaders, or relying on version-sensitive localization tools.
+
+QLF began as an attempt to remove those dependencies and move the entire translation workflow outside Minecraft.
+
+QLF 的起點其實很單純：
+
+Minecraft 任務翻譯流程往往需要啟動遊戲、依賴特定 Loader，或使用容易受到版本影響的在地化工具。
+
+QLF 的目標是將整個翻譯流程搬到遊戲之外完成。
+
+```text
+Extract
+↓
+Translate
+↓
+Validate
+↓
+Inject
+```
+
+No Minecraft runtime required.
+
+不需要啟動 Minecraft。
+
+No Localizer dependency required.
+
+不需要依賴 Localizer。
+
+No launcher-specific workflow required.
+
+不需要依賴特定啟動器。
+
+The goal is to make quest translation reproducible, maintainable, and automation-friendly.
+
+目標是讓任務翻譯流程更容易維護、更容易自動化，也更容易團隊協作。
+
+---
+
+# Who Needs QLF? / 誰適合使用 QLF？
+
+| Role                   | Pain Point                                                    | What QLF Provides                                                             |
+| ---------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Translator             | Too many files, difficult paths, repetitive manual work       | One translation file, automated export and injection                          |
+| Modpack Author         | Translation files are easy to break or distribute incorrectly | Manifest validation and structured delivery                                   |
+| Server Owner           | Pack updates constantly invalidate existing translations      | Diff and Sync workflows preserve previous work                                |
+| Localization Team Lead | Difficult collaboration and translation management            | Single-file workflow suitable for Crowdin, GitHub, or AI-assisted translation |
+
+| 身份    | 常見痛點             | QLF 提供的幫助                           |
+| ----- | ---------------- | ----------------------------------- |
+| 漢化者   | 路徑複雜、檔案分散、手動回填麻煩 | 單一翻譯檔、自動匯出與回填                       |
+| 整合包作者 | 翻譯檔容易損壞或回填錯誤     | Manifest 驗證與安全交付                    |
+| 伺服器主  | 版本更新後翻譯容易失效      | Diff 與 Sync 協助保留既有成果                |
+| 漢化組長  | 多人協作與版本管理困難      | 單一翻譯檔流程，適合 Crowdin、GitHub 或 AI 協作翻譯 |
+
+---
+
+# License / 授權條款
+
+QLF is released under the MIT License.
+
+QLF 採用 MIT License 授權。
+
+You are free to:
+
+你可以自由：
+
+* Use / 使用
+* Modify / 修改
+* Distribute / 散布
+* Integrate into other projects / 整合至其他專案
+
+as long as the original license notice is retained.
+
+但需保留原始授權聲明。
+
+See the LICENSE file for details.
+
+詳細內容請參閱 LICENSE 檔案。
+
 
 # Current Status / 目前狀態
 

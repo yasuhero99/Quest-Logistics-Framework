@@ -29,7 +29,7 @@ validate / diff / debug
 ↓
 inject
 ↓
-zh_tw.snbt
+localized quest file
 ↓
 Minecraft reads it
 ```

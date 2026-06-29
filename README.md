@@ -8,6 +8,11 @@ QLF does **not** translate text by itself.
 
 QLF 負責的是物流，而不是翻譯本身。
 
+QLF is available through both a Command Line Interface (CLI) and an experimental Graphical User Interface (GUI).
+
+QLF 同時提供命令列（CLI）與實驗性圖形介面（GUI）。
+
+
 ```text
 Read → Merge → Validate → Deliver
 ```
@@ -16,7 +21,7 @@ Read → Merge → Validate → Deliver
 
 # What is QLF? / QLF 是什麼？
 
-QLF is a framework for handling Minecraft modpack quest translation workflows.
+QLF is an open-source framework for handling Minecraft modpack quest translation workflows.
 
 QLF 是一套用於 Minecraft 整合包任務翻譯流程的框架。
 
@@ -143,6 +148,60 @@ See the LICENSE file for details.
 
 詳細內容請參閱 LICENSE 檔案。
 
+---
+
+# User Interface / 使用介面
+
+QLF currently provides two ways to use the framework.
+
+QLF 目前提供兩種使用方式。
+
+## Graphical User Interface (GUI)
+
+Recommended for most users.
+
+適合一般使用者。
+
+Launch:
+
+```powershell
+python qlf_gui.py
+```
+
+Current GUI features:
+
+- Detect Sources
+- Extract
+- Validate
+- Direct Write Inject
+- Package Mode
+- Diff Tools
+- Adapter Tools
+- Workflow Log
+
+GUI Status:
+
+⚠ Experimental (Alpha)
+
+The GUI is currently under active development. User interface and workflow may change in future releases.
+
+目前 GUI 為 Alpha 測試版本，介面與操作流程可能於後續版本調整。
+
+---
+
+## Command Line Interface (CLI)
+
+Recommended for automation and advanced workflows.
+
+適合自動化流程與進階使用者。
+
+Launch:
+
+```powershell
+python qlf.py --help
+```
+
+---
 
 # Current Status / 目前狀態
 
@@ -380,7 +439,7 @@ The example adapter is not registered by default.
 
 ---
 
-# GUI Preview / 圖形介面預覽
+# GUI Support / GUI 支援
 
 QLF v2.0-alpha includes a simple Tkinter GUI.
 
@@ -456,8 +515,14 @@ When direct-write mode overwrites an existing file, QLF automatically creates a 
 # Current Release
 
 ```text
-v1.9.3 — Adapter Developer Kit
+v2.0-alpha — Graphical User Interface (Alpha)
 ```
+
+Current focus:
+
+Current GUI implementation is feature-complete but still under active refinement.
+
+目前 GUI 已具備主要功能，仍持續改善使用體驗與介面。
 
 Current capabilities:
 
@@ -468,8 +533,10 @@ Current capabilities:
 * Validation
 * Diff
 * Direct Write Injection
+* Package Mode
 * Adapter SDK
 * Adapter Templates
+* Graphical User Interface (Alpha)
 * Documentation
 
 ---
@@ -480,19 +547,24 @@ Planned features:
 
 未來規劃：
 
-* Interactive Text UI
-* Desktop GUI
+* GUI Polish
+* Windows EXE Build
+* Drag & Drop Support
+* Progress Monitor
 * Additional Quest Adapters
 * Patchouli Support
 * Quest-related KubeJS Support
 * Translation Memory
 * MLF (Mod Logistics Framework)
 
-```
+---
 
-Many Sources
-↓
-One Translation File
-↓
-Many Sources
-```
+Built with Python.
+
+Designed for Minecraft Quest Localization.
+
+使用 Python 開發。
+
+專注於 Minecraft 任務漢化流程。
+
+Made by yasuhero99.

@@ -552,7 +552,7 @@ When direct-write mode overwrites an existing file, QLF automatically creates a 
 # Current Release
 
 ```text
-v2.0 — Stable Release
+v2.0 — Stable Release 
 ```
 
 Current capabilities:

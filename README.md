@@ -594,9 +594,10 @@ Planned features:
 * Patchouli Support
 * Quest-related KubeJS Support
 * Translation Memory
+* Release / Distribution Improvements
 
 ## v2.2
-* MLF (Mod Logistics Framework)
+* Expand QLF into MLF (Mod Logistics Framework)
 
 ---
 

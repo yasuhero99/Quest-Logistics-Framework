@@ -8,20 +8,32 @@ QLF does **not** translate text by itself.
 
 QLF 負責的是物流，而不是翻譯本身。
 
-QLF is available through both a Command Line Interface (CLI) and an experimental Graphical User Interface (GUI).
-
-QLF 同時提供命令列（CLI）與實驗性圖形介面（GUI）。
-
-
 ```text
 Read → Merge → Validate → Deliver
 ```
+> QLF is designed around one idea:
+>
+> Translators should translate.
+> The framework should handle everything else.
+
+> QLF 的核心理念只有一句話：
+>
+> 翻譯者只需要專心翻譯，
+> 剩下的交給框架。
+
+> Build once.
+> Translate anywhere.
+> Inject safely.
+
+> 一次匯出。
+> 任意翻譯。
+> 安全回填。
 
 ---
 
 # What is QLF? / QLF 是什麼？
 
-QLF is an open-source framework for handling Minecraft modpack quest translation workflows.
+QLF is a framework for handling Minecraft modpack quest translation workflows.
 
 QLF 是一套用於 Minecraft 整合包任務翻譯流程的框架。
 
@@ -148,66 +160,16 @@ See the LICENSE file for details.
 
 詳細內容請參閱 LICENSE 檔案。
 
----
-
-# User Interface / 使用介面
-
-QLF currently provides two ways to use the framework.
-
-QLF 目前提供兩種使用方式。
-
-## Graphical User Interface (GUI)
-
-Recommended for most users.
-
-適合一般使用者。
-
-Launch:
-
-```powershell
-python qlf_gui.py
-```
-
-Current GUI features:
-
-- Detect Sources
-- Extract
-- Validate
-- Direct Write Inject
-- Package Mode
-- Diff Tools
-- Adapter Tools
-- Workflow Log
-
-GUI Status:
-
-⚠ Experimental (Alpha)
-
-The GUI is currently under active development. User interface and workflow may change in future releases.
-
-目前 GUI 為 Alpha 測試版本，介面與操作流程可能於後續版本調整。
-
----
-
-## Command Line Interface (CLI)
-
-Recommended for automation and advanced workflows.
-
-適合自動化流程與進階使用者。
-
-Launch:
-
-```powershell
-python qlf.py --help
-```
-
----
 
 # Current Status / 目前狀態
 
 Core workflow is fully working for FTB Quests native language files.
 
 目前已完整支援 FTB Quests 原生語言檔流程。
+
+End-to-end workflow has been successfully tested on real FTB Quests modpacks.
+
+已在實際 FTB Quests 整合包上完成端到端流程測試。
 
 ```text
 FTB Quests
@@ -226,6 +188,30 @@ localized quest file
 ↓
 Minecraft reads it
 ```
+## Tested
+
+Successfully tested on real-world modpacks:
+
+已完成實際整合包測試：
+
+- Create Chronicles
+- All The Mons + Simple VC
+
+Verified workflow:
+
+Extract
+→ Translate
+→ Validate
+→ Inject
+→ Minecraft
+
+已驗證流程：
+
+Extract
+→ Translate
+→ Validate
+→ Inject
+→ Minecraft
 
 ---
 
@@ -439,11 +425,19 @@ The example adapter is not registered by default.
 
 ---
 
-# GUI Support / GUI 支援
+# GUI Preview / 圖形介面預覽
 
 QLF v2.0-alpha includes a simple Tkinter GUI.
 
 QLF v2.0-alpha 新增簡易 Tkinter 圖形介面。
+
+The GUI is currently under active development.
+
+The CLI remains fully supported.
+
+GUI 目前仍在持續開發中。
+
+CLI 仍然是完整且穩定的核心介面。
 
 Run:
 
@@ -455,14 +449,13 @@ The GUI currently supports:
 
 目前 GUI 支援：
 
-- Paste or browse modpack instance path / 貼上或選擇整合包路徑
-- Detect Sources / 偵測來源
-- Extract / 匯出
-- Validate / 驗證
-- Inject Direct Write / 直接回填
-- Package Mode / 封裝模式
-- Diff / 差異比較
-- Adapter tools / Adapter 工具
+- Project Workspace / 專案工作區
+- Launcher Auto Detection / 啟動器自動偵測
+- Quest Extraction / 任務匯出
+- Translation Validation / 翻譯驗證
+- Direct Injection / 直接回填
+- Package Generation / 封裝模式
+- Progress Tracking / 流程追蹤
 
 The GUI calls the existing `qlf.py` CLI internally, so the CLI remains the source of truth.
 
@@ -515,56 +508,48 @@ When direct-write mode overwrites an existing file, QLF automatically creates a 
 # Current Release
 
 ```text
-v2.0-alpha — Graphical User Interface (Alpha)
+v2.0-alpha2 — Project Workflow GUI
 ```
-
-Current focus:
-
-Current GUI implementation is feature-complete but still under active refinement.
-
-目前 GUI 已具備主要功能，仍持續改善使用體驗與介面。
 
 Current capabilities:
 
 目前功能：
 
+* Project Workspace
 * Quest Extraction
-* Manifest Tracking
 * Validation
-* Diff
-* Direct Write Injection
+* Direct Injection
 * Package Mode
+* Manifest Tracking
+* Diff
 * Adapter SDK
-* Adapter Templates
-* Graphical User Interface (Alpha)
+* Folder-based FTBQ Lang Support
 * Documentation
 
 ---
 
-# Future Roadmap
+## Future Roadmap
 
 Planned features:
 
 未來規劃：
 
-* GUI Polish
-* Windows EXE Build
-* Drag & Drop Support
-* Progress Monitor
+* GUI Workflow Refinement
+  - Project Management
+  - Better Progress Tracking
+  - Simplified User Workflow
 * Additional Quest Adapters
 * Patchouli Support
 * Quest-related KubeJS Support
 * Translation Memory
 * MLF (Mod Logistics Framework)
 
----
+## Design Principle
 
-Built with Python.
+QLF aims to remove unnecessary decisions from users.
 
-Designed for Minecraft Quest Localization.
+The framework should remember project state, guide the workflow, and reduce human errors whenever possible.
 
-使用 Python 開發。
+QLF 希望盡可能替使用者處理不必要的決策。
 
-專注於 Minecraft 任務漢化流程。
-
-Made by yasuhero99.
+框架會記錄專案狀態、引導使用流程，並盡可能降低人為操作錯誤。

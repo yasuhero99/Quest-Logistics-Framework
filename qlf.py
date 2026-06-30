@@ -232,7 +232,25 @@ def resolve_paths(input_path: str | Path) -> dict[str, Path | None]:
         p / "en_us.snbt",
     ]
     lang = next((c for c in lang_candidates if c.exists()), None)
-    return {"input": p, "ftbquests": ftb if ftb.exists() else None, "quests": quests if quests.exists() else None, "lang": lang}
+
+    # FTB Quests newer/exported layouts may store lang as a folder:
+    #   config/ftbquests/quests/lang/en_us/*.snbt
+    #   config/ftbquests/quests/lang/en_us/chapters/*.snbt
+    lang_dir_candidates = [
+        quests / "lang" / "en_us",
+        ftb / "lang" / "en_us",
+        p / "quests" / "lang" / "en_us",
+        p / "lang" / "en_us",
+    ]
+    lang_dir = next((c for c in lang_dir_candidates if c.exists() and c.is_dir()), None)
+
+    return {
+        "input": p,
+        "ftbquests": ftb if ftb.exists() else None,
+        "quests": quests if quests.exists() else None,
+        "lang": lang,
+        "lang_dir": lang_dir,
+    }
 
 
 def find_default_source(path: str | Path) -> Path:
@@ -245,6 +263,47 @@ def find_default_source(path: str | Path) -> Path:
         "Cannot find en_us.snbt. Tried instance/config/ftbquests/quests/lang/en_us.snbt, "
         f"ftbquests/quests/lang/en_us.snbt, lang/en_us.snbt, and en_us.snbt under: {p}"
     )
+
+
+
+def _locale_lang_dir(root: Path, quests: Path | None, ftb: Path | None, locale: str) -> Path | None:
+    """Find a folder-based FTBQ lang directory for a locale.
+
+    Examples:
+      config/ftbquests/quests/lang/en_us/
+      config/ftbquests/lang/en_us/
+    """
+    candidates: list[Path] = []
+    if quests:
+        candidates.append(Path(quests) / "lang" / locale)
+    if ftb:
+        candidates.append(Path(ftb) / "lang" / locale)
+    candidates.extend([
+        root / "quests" / "lang" / locale,
+        root / "lang" / locale,
+    ])
+    return next((p for p in candidates if p.exists() and p.is_dir()), None)
+
+
+def _load_folder_lang(folder: Path) -> tuple[OrderedDict[str, Any], list[str]]:
+    """Load and merge all JSON/SNBT lang files under a folder locale.
+
+    Keys are kept as-is. For duplicate keys, the first file in sorted order wins.
+    """
+    merged: OrderedDict[str, Any] = OrderedDict()
+    sources: list[str] = []
+    for src in sorted([*folder.rglob("*.snbt"), *folder.rglob("*.json")]):
+        try:
+            data = load_lang(src)
+        except Exception:
+            continue
+        if not data:
+            continue
+        sources.append(str(src))
+        for k, v in data.items():
+            if k not in merged:
+                merged[k] = v
+    return merged, sources
 
 
 def is_probably_translatable_raw_string(s: str) -> bool:
@@ -632,12 +691,28 @@ def resolve_texts(pack_path: str | Path, locale: str = "en_us", raw_fallback: bo
         "blank_values": 0,
     }
 
-    # A. Native FTBQ lang mode. For en_us only resolve_paths already knows common layout.
+    # A. Native FTBQ lang mode.
+    # Supports both single-file layout:
+    #   config/ftbquests/quests/lang/en_us.snbt
+    # and folder layout:
+    #   config/ftbquests/quests/lang/en_us/*.snbt
     if locale == "en_us" and resolved.get("lang"):
         src = Path(resolved["lang"])
         data = load_lang(src)
         report.update({"mode": "native-ftbquests-lang", "source_files": [str(src)], "keys": len(data)})
         return data, report
+
+    lang_dir = _locale_lang_dir(root, resolved.get("quests"), resolved.get("ftbquests"), locale)
+    if lang_dir:
+        data, sources = _load_folder_lang(lang_dir)
+        if data:
+            report.update({
+                "mode": "native-ftbquests-lang-folder",
+                "source_files": sources,
+                "keys": len(data),
+                "lang_dir": str(lang_dir),
+            })
+            return data, report
 
     # B. Search language files. Merge in priority order, keeping the first value for duplicate keys.
     merged: OrderedDict[str, Any] = OrderedDict()
@@ -728,7 +803,7 @@ def build_manifest_for_resolved(pack_path: str | Path, locale: str, data: Ordere
 
     key_sources: OrderedDict[str, dict[str, Any]] = OrderedDict()
 
-    # Native FTBQ mode is one source file containing all native keys.
+    # Native FTBQ mode can be one source file containing all native keys.
     if report.get("mode") == "native-ftbquests-lang" and sources:
         sid = 0
         for key, value in data.items():
@@ -737,6 +812,36 @@ def build_manifest_for_resolved(pack_path: str | Path, locale: str, data: Ordere
                 "value_type": _manifest_value_type(value),
                 "line_count": _manifest_line_count(value),
             }
+
+    # Folder-based native FTBQ lang mode assigns keys back to the file where
+    # they were first found.
+    elif report.get("mode") == "native-ftbquests-lang-folder" and sources:
+        assigned: set[str] = set()
+        for src in sources:
+            sid = source_id_by_path[str(src)]
+            try:
+                src_data = load_lang(src)
+            except Exception:
+                continue
+            for key in src_data.keys():
+                if key in data and key not in assigned:
+                    value = data[key]
+                    key_sources[key] = {
+                        "source": "ftbquests",
+                        "adapter": "ftbquests",
+                        "source_id": sid,
+                        "value_type": _manifest_value_type(value),
+                        "line_count": _manifest_line_count(value),
+                    }
+                    assigned.add(key)
+        for key, value in data.items():
+            key_sources.setdefault(key, {
+                "source": "ftbquests",
+                "adapter": "ftbquests",
+                "source_id": 0,
+                "value_type": _manifest_value_type(value),
+                "line_count": _manifest_line_count(value),
+            })
 
     # Discovered lang files may be many files. Re-load in same priority order
     # and assign each key to the first source that contributed it.
@@ -806,12 +911,24 @@ def build_manifest_for_resolved(pack_path: str | Path, locale: str, data: Ordere
 
 def _target_relative_path(rel: str, source_locale: str, target_locale: str) -> str:
     p = Path(rel)
+    parts = list(p.parts)
+
+    # Folder-based locale layout:
+    #   config/ftbquests/quests/lang/en_us/chapters/create.snbt
+    # becomes:
+    #   config/ftbquests/quests/lang/zh_tw/chapters/create.snbt
+    for i, part in enumerate(parts):
+        if part.lower() == source_locale.lower():
+            parts[i] = target_locale
+            return str(Path(*parts)).replace('\\', '/')
+
     name = p.name
     for ext in ('.json', '.snbt', '.lang'):
         old = f"{source_locale}{ext}"
         if name.lower() == old.lower():
             return str(p.with_name(f"{target_locale}{ext}")).replace('\\', '/')
-    # If the source file did not use the locale as filename, append target locale.
+
+    # If the source file did not use the locale as folder or filename, append target locale.
     if p.suffix:
         return str(p.with_name(f"{p.stem}.{target_locale}{p.suffix}")).replace('\\', '/')
     return str(p / target_locale).replace('\\', '/')

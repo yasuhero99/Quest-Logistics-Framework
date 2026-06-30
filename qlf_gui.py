@@ -735,13 +735,59 @@ class QLFGui(tk.Tk):
                     if code == 0 and on_success:
                         self._handle_success(on_success)
                     else:
-                        self._update_state()
+                        if on_success == "validate":
+                            self._handle_validate_failure()
+                        else:
+                            self._update_state()
                     continue
                 assert isinstance(item, str)
                 self._log(item)
         except queue.Empty:
             pass
         self.after(100, self._drain_output_queue)
+
+    def _handle_validate_failure(self) -> None:
+        """Show validation errors when the CLI exits with a non-zero code.
+
+        The CLI is the source of truth. A non-zero validation exit means at least
+        one blocking error exists, such as missing keys, duplicate keys, or type
+        mismatches. Warnings alone should exit with 0 and are handled by
+        _handle_success("validate").
+        """
+        if self.current_project:
+            self.current_project_data["last_validate"] = None
+            self.current_project_data["last_translation"] = None
+            write_json(self.project_config_path(), self.current_project_data)
+
+        translation = self.selected_translation_file()
+        errors: list[str] = []
+        warnings: list[str] = []
+        report_path = None
+        if self.current_project and translation:
+            report_path = self.current_project / "reports" / f"validate_{translation.stem}.json"
+            try:
+                report = read_json(report_path, {})
+                errors = report.get("errors", []) or []
+                warnings = report.get("warnings", []) or []
+            except Exception:
+                errors = []
+                warnings = []
+
+        message = "Validation failed. Please fix blocking errors before Direct Inject or Package Mode."
+        if errors:
+            message += "\n\nErrors:\n" + "\n".join(f"• {e}" for e in errors[:8])
+            if len(errors) > 8:
+                message += f"\n• ... and {len(errors) - 8} more"
+        if warnings:
+            message += "\n\nWarnings:\n" + "\n".join(f"• {w}" for w in warnings[:8])
+            if len(warnings) > 8:
+                message += f"\n• ... and {len(warnings) - 8} more"
+        if report_path:
+            message += f"\n\nReport:\n{report_path}"
+
+        messagebox.showerror("Validation Failed", message)
+        self._update_project_info()
+        self._update_state()
 
     def _handle_success(self, action: str) -> None:
         if not self.current_project:
@@ -764,7 +810,24 @@ class QLFGui(tk.Tk):
             self.current_project_data["last_validate"] = now_iso()
             self.current_project_data["last_translation"] = translation.name if translation else None
             write_json(self.project_config_path(), self.current_project_data)
-            messagebox.showinfo("Validation Passed", "Validation completed successfully.\n\nYou can now Direct Inject or Build Package.")
+            warning_text = ""
+            if translation:
+                report_path = self.current_project / "reports" / f"validate_{translation.stem}.json"
+                try:
+                    report = read_json(report_path, {})
+                    warnings = report.get("warnings", []) or []
+                    if warnings:
+                        warning_text = "\n\nWarnings:\n" + "\n".join(f"• {w}" for w in warnings[:8])
+                        if len(warnings) > 8:
+                            warning_text += f"\n• ... and {len(warnings) - 8} more"
+                except Exception:
+                    warning_text = ""
+            messagebox.showinfo(
+                "Validation Passed",
+                "Validation completed successfully."
+                + warning_text
+                + "\n\nWarnings do not block Direct Inject or Package Mode.",
+            )
         elif action == "inject":
             self.current_project_data["last_inject"] = now_iso()
             write_json(self.project_config_path(), self.current_project_data)

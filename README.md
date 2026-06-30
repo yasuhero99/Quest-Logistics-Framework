@@ -11,15 +11,6 @@ QLF 負責的是物流，而不是翻譯本身。
 ```text
 Read → Merge → Validate → Deliver
 ```
-> QLF is designed around one idea:
->
-> Translators should translate.
-> The framework should handle everything else.
-
-> QLF 的核心理念只有一句話：
->
-> 翻譯者只需要專心翻譯，
-> 剩下的交給框架。
 
 > Build once.
 > Translate anywhere.
@@ -171,6 +162,14 @@ End-to-end workflow has been successfully tested on real FTB Quests modpacks.
 
 已在實際 FTB Quests 整合包上完成端到端流程測試。
 
+Validation now distinguishes between warnings and errors.
+
+Warnings do not block injection, while errors must be resolved before injection.
+
+Validate 現在會區分 Warning 與 Error。
+
+Warning 不會阻止回填，而 Error 必須先修正才能回填。
+
 ```text
 FTB Quests
 ↓
@@ -188,7 +187,8 @@ localized quest file
 ↓
 Minecraft reads it
 ```
-## Tested
+
+## Tested / 實測
 
 Successfully tested on real-world modpacks:
 
@@ -199,19 +199,15 @@ Successfully tested on real-world modpacks:
 
 Verified workflow:
 
-Extract
-→ Translate
-→ Validate
-→ Inject
-→ Minecraft
-
 已驗證流程：
 
+```text
 Extract
 → Translate
 → Validate
 → Inject
 → Minecraft
+```
 
 ---
 
@@ -427,17 +423,17 @@ The example adapter is not registered by default.
 
 # GUI Preview / 圖形介面預覽
 
-QLF v2.0-alpha includes a simple Tkinter GUI.
+QLF v2.0-beta includes a project-based Tkinter GUI.
 
-QLF v2.0-alpha 新增簡易 Tkinter 圖形介面。
+QLF v2.0-beta 包含以 Project 為核心的 Tkinter 圖形介面。
 
 The GUI is currently under active development.
 
-The CLI remains fully supported.
-
 GUI 目前仍在持續開發中。
 
-CLI 仍然是完整且穩定的核心介面。
+The CLI remains fully supported and remains the source of truth.
+
+CLI 仍然受到完整支援，並且仍是核心邏輯來源。
 
 Run:
 
@@ -453,13 +449,14 @@ The GUI currently supports:
 - Launcher Auto Detection / 啟動器自動偵測
 - Quest Extraction / 任務匯出
 - Translation Validation / 翻譯驗證
+- Warning/Error Validation / Warning 與 Error 分級
 - Direct Injection / 直接回填
 - Package Generation / 封裝模式
 - Progress Tracking / 流程追蹤
 
-The GUI calls the existing `qlf.py` CLI internally, so the CLI remains the source of truth.
+The GUI calls the existing `qlf.py` CLI internally.
 
-GUI 會在內部呼叫既有的 `qlf.py` CLI，因此 CLI 仍然是核心邏輯來源。
+GUI 會在內部呼叫既有的 `qlf.py` CLI。
 
 ---
 
@@ -508,7 +505,7 @@ When direct-write mode overwrites an existing file, QLF automatically creates a 
 # Current Release
 
 ```text
-v2.0-alpha2 — Project Workflow GUI
+v2.0-beta — Project Workflow GUI
 ```
 
 Current capabilities:
@@ -518,17 +515,19 @@ Current capabilities:
 * Project Workspace
 * Quest Extraction
 * Validation
+* Warning/Error Validation
 * Direct Injection
 * Package Mode
 * Manifest Tracking
 * Diff
 * Adapter SDK
+* Adapter Templates
 * Folder-based FTBQ Lang Support
 * Documentation
 
 ---
 
-## Future Roadmap
+# Future Roadmap
 
 Planned features:
 
@@ -544,7 +543,9 @@ Planned features:
 * Translation Memory
 * MLF (Mod Logistics Framework)
 
-## Design Principle
+---
+
+# Design Principle / 設計理念
 
 QLF aims to remove unnecessary decisions from users.
 

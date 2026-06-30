@@ -940,9 +940,9 @@ def inject_from_manifest(translation: OrderedDict[str, Any], manifest: dict[str,
     trans_key_set = set(translation.keys())
     missing = sorted(manifest_key_set - trans_key_set)
     extra = sorted(trans_key_set - manifest_key_set)
-    if strict and (missing or extra):
+    if strict and missing:
         raise ValueError(
-            "Translation keys do not match manifest. "
+            "Translation is missing manifest keys. "
             f"missing={len(missing)}, extra={len(extra)}. "
             "Run validate or fix the translated file before inject."
         )
@@ -2041,7 +2041,7 @@ def validate_lang_pair(source_data: OrderedDict[str, Any], target_data: OrderedD
     if missing and not allow_missing:
         errors.append("target is missing source keys")
     if extra and not allow_extra:
-        errors.append("target has extra keys not present in source")
+        warnings.append("target has extra keys not present in source; extra keys will be ignored during inject")
     if fail_on_empty and empty:
         errors.append("target contains empty values")
     elif empty:
@@ -2078,6 +2078,18 @@ def validate_lang_pair(source_data: OrderedDict[str, Any], target_data: OrderedD
         "unmapped_sample": unmapped_keys[:50],
         "warnings": warnings,
         "errors": errors,
+        "warning_count": len(warnings),
+        "error_count": len(errors),
+        "severity": {
+            "missing_keys": "error",
+            "extra_keys": "warning",
+            "empty_values": "error" if fail_on_empty else "warning",
+            "type_mismatches": "error",
+            "line_count_mismatches": "warning",
+            "target_duplicate_keys": "error",
+            "source_duplicate_keys": "warning",
+            "unmapped_keys": "warning",
+        },
         "ok": not errors,
     }
     return report, (0 if not errors else 1)
@@ -2179,7 +2191,7 @@ def cmd_inject(args: argparse.Namespace) -> int:
     print(json.dumps(report, ensure_ascii=False, indent=2))
     if args.report:
         Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return 1 if report["missing_keys"] or (report["extra_keys"] and not args.no_strict) else 0
+    return 1 if report["missing_keys"] else 0
 
 
 def build_parser() -> argparse.ArgumentParser:

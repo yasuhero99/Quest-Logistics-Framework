@@ -552,7 +552,7 @@ When direct-write mode overwrites an existing file, QLF automatically creates a 
 # Current Release
 
 ```text
-v2.0-beta — Project Workflow GUI
+v2.0 — Stable Release
 ```
 
 Current capabilities:
@@ -572,6 +572,7 @@ Current capabilities:
 * Folder-based FTBQ Lang Support
 * Documentation
 * Executable Build Support
+* Standalone Windows Executable
 
 ## Standalone Windows Build
 
@@ -588,14 +589,13 @@ Planned features:
 
 未來規劃：
 
-* GUI Workflow Refinement
-  - Project Management
-  - Better Progress Tracking
-  - Simplified User Workflow
+## v2.1
 * Additional Quest Adapters
 * Patchouli Support
 * Quest-related KubeJS Support
 * Translation Memory
+
+## v2.2
 * MLF (Mod Logistics Framework)
 
 ---

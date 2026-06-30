@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-QLF GUI (v2.0-alpha2)
+QLF GUI (v2.0-beta)
 
 A simplified Project-based Tkinter front-end for Quest Logistics Framework.
 The GUI intentionally calls the existing qlf.py CLI instead of reimplementing
@@ -29,7 +29,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
 
-APP_TITLE = "Quest Logistics Framework - GUI v2.0-alpha2"
+APP_TITLE = "Quest Logistics Framework - GUI v2.0-beta"
 COMMON_LOCALES = [
     "en_us", "zh_tw", "zh_cn", "ja_jp", "ko_kr", "fr_fr", "de_de", "es_es", "ru_ru",
     "pt_br", "it_it", "pl_pl", "uk_ua",
@@ -120,8 +120,13 @@ class QLFGui(tk.Tk):
         self.minsize(900, 640)
         self.resizable(True, True)
 
-        self.app_dir = Path(__file__).resolve().parent
+        if getattr(sys, "frozen", False):
+            self.app_dir = Path(sys.executable).resolve().parent
+        else:
+            self.app_dir = Path(__file__).resolve().parent
+
         self.qlf_py = self.app_dir / "qlf.py"
+        self.qlf_exe = self.app_dir / "bin" / "qlf_cli.exe"
         self.projects_root = self.app_dir / "Projects"
         self.settings_path = self.app_dir / "qlf_gui_settings.json"
         self.projects_root.mkdir(exist_ok=True)
@@ -455,7 +460,7 @@ class QLFGui(tk.Tk):
                 "last_validate": None,
                 "last_inject": None,
                 "last_translation": None,
-                "qlf_gui_version": "v2.0-alpha2",
+                "qlf_gui_version": "v2.0-beta",
             }
             write_json(project_dir / "project.json", data)
 
@@ -694,10 +699,22 @@ class QLFGui(tk.Tk):
         if self.running:
             messagebox.showinfo("Running", "QLF is already running a command.")
             return
-        if not self.qlf_py.exists():
-            messagebox.showerror("Missing qlf.py", f"Cannot find qlf.py at:\n{self.qlf_py}")
-            return
-        cmd = [self._python_cmd(), str(self.qlf_py), *args]
+
+        if getattr(sys, "frozen", False):
+            if not self.qlf_exe.exists():
+                messagebox.showerror(
+                    "Missing qlf.exe",
+                    f"Cannot find qlf_cli.exe at:\n{self.qlf_exe}\n\n"
+                    "The executable release must keep QLF.exe and bin/qlf_cli.exe together."
+                )
+                return
+            cmd = [str(self.qlf_exe), *args]
+        else:
+            if not self.qlf_py.exists():
+                messagebox.showerror("Missing qlf.py", f"Cannot find qlf.py at:\n{self.qlf_py}")
+                return
+            cmd = [self._python_cmd(), str(self.qlf_py), *args]
+
         self.running = True
         self._update_state()
         self._log(f"\n=== {title} ===\n")

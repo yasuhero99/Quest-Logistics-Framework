@@ -458,6 +458,53 @@ The GUI calls the existing `qlf.py` CLI internally.
 
 GUI 會在內部呼叫既有的 `qlf.py` CLI。
 
+
+---
+
+# Windows Executable Build / Windows 執行檔打包
+
+QLF can be packaged as a Windows executable release with PyInstaller.
+
+QLF 可以使用 PyInstaller 打包成 Windows 執行檔版本。
+
+Build command:
+
+打包指令：
+
+```powershell
+python build_release.py
+```
+
+Or double-click:
+
+或直接雙擊：
+
+```text
+build_release.bat
+```
+
+The release output uses this layout:
+
+輸出後的發佈資料夾結構如下：
+
+```text
+release/Quest-Logistics-Framework-v2.0-beta/
+├─ QLF.exe          # GUI launcher / 圖形介面入口
+├─ bin/
+│  └─ qlf.exe       # CLI engine used internally / GUI 內部呼叫的 CLI 引擎
+├─ Projects/        # Project workspaces / 專案工作區
+├─ README.md
+└─ LICENSE
+```
+
+Users should open `QLF.exe`.
+
+使用者只需要開啟 `QLF.exe`。
+
+Do not delete `bin/qlf.exe`; the GUI uses it internally.
+
+請不要刪除 `bin/qlf.exe`，GUI 會在內部呼叫它執行核心流程。
+
 ---
 
 # Documentation
@@ -524,6 +571,14 @@ Current capabilities:
 * Adapter Templates
 * Folder-based FTBQ Lang Support
 * Documentation
+* Executable Build Support
+
+## Standalone Windows Build
+
+QLF can now be packaged into standalone Windows executables.
+
+The GUI (`QLF.exe`) communicates with the bundled CLI (`bin/qlf_cli.exe`) automatically.
+
 
 ---
 
